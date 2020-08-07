@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>audio</title>
+</head>
+<body>
+    <button id="button">经过我</button>
+
+<script>
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    (function () {
+        if (!window.AudioContext) {
+            alert('当前浏览器不支持Web Audio API');
+            return;
+        }
+    })
+    var eleButton = document.getElementById('button');
+    var audioCtx = new AudioContext();
+    var arrFrequency = [196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+    var start = 0, direction = 1;
+    eleButton.addEventListener('mouseenter', function (){
+        var frequency = arrFrequency[start];
+        if (!frequency) {
+            direction = -1 * direction;
+            start = start + 2 * direction;
+            frequency = arrFrequency[start];
+        }
+        start = start + direction;
+        var oscillator = audioCtx.createOscillator();
+        var gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'square';
+        oscillator.frequency.value = frequency;
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
+        oscillator.start(audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
+        oscillator.stop(audioCtx.currentTime + 1);
+    });
+</script>
+</body>
+</html>
